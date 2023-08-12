@@ -8,6 +8,8 @@ packages = [{include = "hh_emploers_database"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+psycopg2 = "^2.9.7"
+requests = "^2.31.0"
 
 
 [build-system]
