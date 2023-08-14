@@ -33,53 +33,47 @@ class DBManager:
         else:
             self.cursor.execute(string)
 
-    def get_companies_and_vacancies_count(self) -> list:
+    def get_companies_and_vacancies_count(self):
         """Получает список всех компаний и количество вакансий у каждой компании."""
-        result = None
-        self.cursor.execute("""SELECT company_name, COUNT(*) FROM employers
+        self.cursor.execute("""SELECT employer_name, COUNT(*) FROM employers
                             JOIN vacancies USING(employer_id)
-                            GROUP BY company_name
-                            ORDER BY company_name""")
-        if self.cursor.description is not None:
-            result = self.cursor.fetchall()
-
-        return result
+                            GROUP BY employer_name
+                            ORDER BY employer_name""")
 
     def get_all_vacancies(self):
         """Получает список всех вакансий с указанием названия компании, названия вакансии
         и зарплаты и ссылки на вакансию."""
-        result = None
-        self.cursor.execute("""SELECT employers.company_name, vacancy_title, salary_from, salary_to, 
+        self.cursor.execute("""SELECT employer_name, vacancy_title, salary_from, salary_to, 
                             currency, vacancy_url FROM vacancies 
                             JOIN employers using(employer_id)""")
-        if self.cursor.description is not None:
-            result = self.cursor.fetchall()
-
-        return result
 
     def get_avg_salary(self):
         """Получает среднюю зарплату по вакансиям."""
-        # result = None
-        # self.cursor.execute('''
-        # ''')
-        # if self.cursor.description is not None:
-        #     result = self.cursor.fetchall()
-        #
-        # return result
+        result = None
+        self.cursor.execute("""SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2, 2) AS avg_salary, currency 
+                            FROM vacancies
+                            WHERE currency = 'RUR'
+                            GROUP BY currency""")
+        if self.cursor.description is not None:
+            result = self.cursor.fetchone()
+
+        return result
 
     def get_vacancies_with_higher_salary(self):
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
-        pass
+        self.cursor.execute("""SELECT employer_name, vacancy_title, city, salary_from, salary_to, 
+                            currency, experience, vacancy_url FROM vacancies
+                            JOIN employers USING(employer_id)
+                            WHERE currency = 'RUR' 
+                            AND salary_from > (SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2, 2) FROM vacancies) 
+                            OR salary_to > (SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2, 2) FROM vacancies)""")
 
     def get_vacancies_with_keyword(self, search_query):
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например “python”."""
-        result = None
-        self.cursor.execute("""SELECT * FROM vacancies
+        self.cursor.execute("""SELECT employer_name, vacancy_title, city, requirement, responsibility, 
+                            salary_from, salary_to, currency, experience, vacancy_url FROM vacancies
+                            JOIN employers USING(employer_id)
                             WHERE vacancy_title like '%{}%'""".format(search_query))
-        if self.cursor.description is not None:
-            result = self.cursor.fetchall()
-
-        return result
 
     def close_connection(self) -> None:
         if self.connection is not None:
