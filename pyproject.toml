@@ -10,6 +10,7 @@ packages = [{include = "hh_emploers_database"}]
 python = "^3.11"
 psycopg2 = "^2.9.7"
 requests = "^2.31.0"
+prettytable = "^3.8.0"
 
 
 [build-system]

@@ -1,12 +1,8 @@
 import os
 
-from hh_employers_database.dbmanager import DBManager
-from hh_employers_database.hh_api import HeadHunterAPI
+from prettytable import PrettyTable
 
-# hh_api = HeadHunterAPI()
-# script_file = 'queries.sql'
-# db_name = 'my_new_db'
-# psql = DBManager(db_name)
+my_table = PrettyTable()
 
 
 def filling_database(psql, data):
@@ -47,3 +43,9 @@ def execute_sql_script(cur, filename) -> None:
     with open(filepath, 'r', encoding='utf-8') as file:
         script = file.read()
         cur.execute(script)
+
+
+def result_conversion(result: list[tuple | list], column_name: list[str]) -> str:
+    my_table.field_names = column_name
+    my_table.add_rows(result)
+    return my_table.get_string()
