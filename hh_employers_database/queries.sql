@@ -41,7 +41,7 @@ CREATE TABLE vacancies (
     vacancy_id serial PRIMARY KEY,
     vacancy_title varchar(100),
     employer_id int REFERENCES employers(employer_id),
-    city varchar(50),
+    city varchar(100),
     salary_from int,
     salary_to int,
     currency varchar(5),

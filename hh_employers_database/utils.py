@@ -1,11 +1,12 @@
 import os
 
+import psycopg2
 from prettytable import PrettyTable
 
 my_table = PrettyTable()
 
 
-def filling_database(psql, data):
+def filling_database(psql, data) -> None:
     for employers in data:
         employer_data = employers['employer']
         psql.query("""INSERT INTO employers(employer_name, employer_site_url, employer_hh_url) 
@@ -37,7 +38,7 @@ def filling_database(psql, data):
     psql.connection.commit()
 
 
-def execute_sql_script(cur, filename) -> None:
+def execute_sql_script(cur, filename: str) -> None:
     """Выполняет скрипт из файла для заполнения БД данными."""
     filepath = os.path.join(os.path.dirname(__file__), filename)
     with open(filepath, 'r', encoding='utf-8') as file:
@@ -49,3 +50,19 @@ def result_conversion(result: list[tuple | list], column_name: list[str]) -> str
     my_table.field_names = column_name
     my_table.add_rows(result)
     return my_table.get_string()
+
+
+def drop_database(params: dict, db_name: str) -> None:
+    """Создает новую базу данных."""
+    conn = psycopg2.connect(**params)
+    conn.set_session(autocommit=True)
+    cur = conn.cursor()
+
+    cur.execute("""SELECT pg_terminate_backend(pg_stat_activity.pid)
+                FROM pg_stat_activity
+                WHERE pg_stat_activity.datname = %s
+                AND pid <> pg_backend_pid();""", (db_name,))
+    cur.execute(f"DROP DATABASE IF EXISTS {db_name};")
+
+    cur.close()
+    conn.close()

@@ -8,7 +8,7 @@ class HeadHunterAPI:
     EMPLOYER_ID = ['1740', '15478', '2180', '64174', '84585', '1057', '3776', '3529', '78638', '41862']
     URL_VACANCIES = "https://api.hh.ru/vacancies"
     URL_EMPLOYERS = "https://api.hh.ru/employers/{employer_id}"
-    MAX_PAGES = 2
+    MAX_PAGES = 15
 
     def get_vacancies_by_employers(self) -> list[dict[str, Any]]:
         """
@@ -22,7 +22,7 @@ class HeadHunterAPI:
 
             vacancies_lst = []
             for page in range(self.MAX_PAGES):
-                params = {'per_page': 2,
+                params = {'per_page': 100,
                           'page': page,
                           'order_by': "publication_time",
                           'area': [113, 16, 40],
@@ -37,16 +37,3 @@ class HeadHunterAPI:
             data.append({'employer': employer_data, 'vacancies': vacancies_lst})
 
         return data
-
-# data_base_name = 'course_work_db'
-# psql = DBManager(data_base_name)
-# print(psql.connection)
-# print(psql.cursor)
-# print(psql.commit)
-# psql.close_cursor()
-# psql.close_connection()
-# print()
-#
-# hh_api = HeadHunterAPI()
-# with open('test_2.json', 'w', encoding='utf-8') as f:
-#     json.dump(hh_api.get_vacancies_by_employers(), f, ensure_ascii=False, indent=4)
