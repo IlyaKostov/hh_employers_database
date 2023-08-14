@@ -59,13 +59,14 @@ class DBManager:
 
     def get_avg_salary(self):
         """Получает среднюю зарплату по вакансиям."""
-        # result = None
-        # self.cursor.execute('''
-        # ''')
-        # if self.cursor.description is not None:
-        #     result = self.cursor.fetchall()
-        #
-        # return result
+        result = None
+        self.cursor.execute("""SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2, 2) AS avg_salary 
+                            FROM vacancies
+                            WHERE currency = 'RUR'""")
+        if self.cursor.description is not None:
+            result = self.cursor.fetchone()
+
+        return result
 
     def get_vacancies_with_higher_salary(self):
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
@@ -103,3 +104,12 @@ class DBManager:
 
         cur.close()
         conn.close()
+
+
+psql = DBManager('name_1')
+print(psql.cursor)
+print(psql.connection)
+psql.close_cursor()
+psql.close_connection()
+print(psql.cursor)
+print(psql.connection)
